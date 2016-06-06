@@ -10,4 +10,13 @@ return
                 )
             )
         ),
+        'gethivedatas' => array(
+            'options' => array(
+                'route' => 'gethivedatas',
+                'defaults' => array(
+                    'controller' => 'Application\Controller\Index',
+                    'action' => 'index'
+                )
+            )
+        ),
     );

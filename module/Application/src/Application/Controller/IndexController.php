@@ -11,6 +11,7 @@ namespace Application\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;
 use Zend\View\Model\ViewModel;
+use Zend\View\Model\JsonModel;
 use Application\Model\Application;
 
 class IndexController extends AbstractActionController
@@ -28,13 +29,30 @@ class IndexController extends AbstractActionController
         }
     }
 
+    public function voltageAction()
+    {
+        $view = new ViewModel();
+
+        return $view;
+    }
+
+    public function getHiveVoltageAction()
+    {
+        $view = new JsonModel();
+        $hivename = 'rucheBas';
+        $view->voltages = $this->_application->getHiveVoltage($hivename);
+        return $view;
+    }
+
     public function indexAction()
     {
         $view = new ViewModel();
         $view->AppTitle = null;
+        $hivename = 'rucheBas';
         if($this->_application)
         {
             $view->AppTitle = $this->_application->getTitle();
+
         }
         return $view;
     }

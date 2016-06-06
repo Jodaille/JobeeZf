@@ -147,7 +147,7 @@ class SensorValue
         return $this;
     }
 
-    public function getRecordedAt($recorded_at)
+    public function getRecordedAt()
     {
         return $this->recorded_at;
     }

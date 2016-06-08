@@ -17,6 +17,40 @@ class Application
         return $this->servicelocator;
     }
 
+    public function getHiveSensorsValues($hivename)
+    {
+        $voltages          = [];
+        $topbartemperature = [];
+        $topbarhumidity    = [];
+        $valuesRepository = $this->getEntityManager()
+                                ->getRepository('Application\Entity\SensorValue');
+        $values = $valuesRepository->getHiveSensorValues($hivename);
+        foreach($values as $v)
+        {
+            $data = ['v'  => $v->getValue(),
+                            't' => $v->getRecordedAt()->getTimestamp(),
+                            'h' => $v->getRecordedAt()->format('Y-m-d H:i:s'),
+                            'sensor' => $v->getSensor()->getName()
+                            ];
+            if($v->getSensor()->getName() == 'byteVoltage')
+            {
+                $voltages[] = $data;
+            }
+            if($v->getSensor()->getName() == 'topbartemperature')
+            {
+                $topbartemperature[] = $data;
+            }
+            if($v->getSensor()->getName() == 'topbarhumidity')
+            {
+                $topbarhumidity[] = $data;
+            }
+        }
+        //echo '<pre>';\Doctrine\Common\Util\Debug::dump($voltages);die();
+        return ['voltages' => $voltages,
+                'topbartemperature' => $topbartemperature,
+                'topbarhumidity' => $topbarhumidity];
+    }
+
     public function getHiveVoltage($hivename)
     {
         $voltages = [];

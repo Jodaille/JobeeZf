@@ -74,6 +74,18 @@ return array(
                     ),
                 ),
             ),
+            //getHiveSensors
+            'hivesensors' => array(
+                'type'    => 'Literal',
+                'options' => array(
+                    'route'    => '/hivesensors',
+                    'defaults' => array(
+                        '__NAMESPACE__' => 'Application\Controller',
+                        'controller'    => 'Index',
+                        'action'        => 'getHiveSensors',
+                    ),
+                ),
+            ),
         ),
     ),
     'service_manager' => array(

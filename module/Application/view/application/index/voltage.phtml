@@ -19,7 +19,7 @@
       // Split timestamp and data into separate arrays
       var labels = [], data=[];
       results["voltages"].forEach(function(packet) {
-        labels.push(packet.t);
+        labels.push(packet.h);
         data.push(parseFloat(packet.v));
       });
 

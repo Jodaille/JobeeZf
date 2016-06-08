@@ -36,6 +36,14 @@ class IndexController extends AbstractActionController
         return $view;
     }
 
+    public function getHiveSensorsAction()
+    {
+        $view = new JsonModel();
+        $hivename = 'ruche1';
+        $view->voltages = $this->_application->getHiveSensorsValues($hivename);
+        return $view;
+    }
+
     public function getHiveVoltageAction()
     {
         $view = new JsonModel();

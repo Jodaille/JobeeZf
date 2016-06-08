@@ -95,6 +95,11 @@ class ReadFile
         return $this->getSensor('byteVoltage');
     }
 
+    public function getHumiditySensor()
+    {
+        return $this->getSensor('topbarhumidity');
+    }
+
     public function addTopBarTemperature($hive, $temperature, $recordTime)
     {
         $sensor = $this->getTopBarTemperatureSensor();
@@ -115,6 +120,20 @@ class ReadFile
         $value->setHive($hive);
         $value->setSensor($sensor);
         $value->setValue($voltage);
+        $value->setRecordedAt($recordTime);
+        $this->getEntityManager()->persist($value);
+        $this->getEntityManager()->flush();
+        return $value;
+    }
+
+    //addHumidity
+    public function addHumidity($hive, $humidity, $recordTime)
+    {
+        $sensor = $this->getHumiditySensor();
+        $value = new \Application\Entity\SensorValue;
+        $value->setHive($hive);
+        $value->setSensor($sensor);
+        $value->setValue($humidity);
         $value->setRecordedAt($recordTime);
         $this->getEntityManager()->persist($value);
         $this->getEntityManager()->flush();
@@ -159,13 +178,18 @@ class ReadFile
                     $hive = $this->addHive($id_hive);
 
                     $temperature = $this->_getTopBarTemperature($id_hive , $row);
+                    $humidity = $this->_getTopBarHumidity($id_hive , $row);
                     $this->addTopBarTemperature($hive, $temperature, $recordTime);
                     $voltage     = $this->_getVoltage($id_hive , $row);
                     if($voltage)
                     {
                         $this->addVoltageInByte($hive, $voltage, $recordTime);
                     }
-                    echo "$date  $hour $id_hive $temperature $voltage\n";
+                    if($humidity)
+                    {
+                        $this->addHumidity($hive, $humidity, $recordTime);
+                    }
+                    echo "$date  $hour $id_hive $temperature $voltage $humidity\n";
                 }
                 else
                 {
@@ -204,6 +228,18 @@ class ReadFile
             //var_dump($row);die("  $id_hive $temperature");
         }
         return $temperature;
+    }
+
+    private function _getTopBarHumidity($id_hive , $row)
+    {
+        $humidity = null;
+
+        if($id_hive == 'rucheBas')
+        {
+            $humidity = $row[8];
+            //var_dump($humidity);die("  $id_hive $humidity");die();
+        }
+        return $humidity;
     }
 
 }

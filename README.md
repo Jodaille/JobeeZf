@@ -18,3 +18,5 @@ Using http://www.chartjs.org/
 
 
 http://jobeezf.local/temperature
+
+![Entry and topbar temperatures of hive](https://raw.githubusercontent.com/Jodaille/JobeeZf/master/public/img/TopbarEntryTemperatureSwarm.png)

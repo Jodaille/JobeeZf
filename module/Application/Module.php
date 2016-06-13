@@ -40,8 +40,4 @@ class Module
         );
     }
 
-    public function getConsoleUsage(Console $console)
-    {
-        return include __DIR__ . '/config/consoleusage.config.php';
-    }
 }

@@ -8,6 +8,7 @@ return array(
 
     'PROJECT initialisation',
 
-        'readlog [<filename>]' => 'read log file',
+    'readlog [<filename>]' => 'read log file',
+    'readcsv [<filename>]' => 'read csv file',
 
 );

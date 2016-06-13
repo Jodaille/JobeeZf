@@ -1,12 +1,12 @@
 <?php
 
-namespace Application\Model;
+namespace Apiary\Model;
 
 class ReadFile
 {
     protected $servicelocator;
     protected $em;
-    protected $_aAllowedIds = array('ruche1', 'rucheBas');
+    protected $_aAllowedIds = array('ruche1', 'rucheBas', 'Danvou');
 
 
     public function setServiceLocator(\Zend\ServiceManager\ServiceManager $serviceLocator)
@@ -31,7 +31,7 @@ class ReadFile
     public function getApiary($apiaryname)
     {
         $apiaryRepository = $this->getEntityManager()
-                                ->getRepository('Application\Entity\Apiary');
+                                ->getRepository('Apiary\Entity\Apiary');
         $apiary = $apiaryRepository->findOneByName($apiaryname);
         return $apiary;
     }
@@ -39,7 +39,7 @@ class ReadFile
     public function getHive($hivename)
     {
         $hiveRepository = $this->getEntityManager()
-                                ->getRepository('Application\Entity\Hive');
+                                ->getRepository('Apiary\Entity\Hive');
         $hive = $hiveRepository->findOneByName($hivename);
         return $hive;
     }
@@ -49,7 +49,7 @@ class ReadFile
         $hive = $this->getHive($hivename);
         if(!$hive)
         {
-            $hive = new \Application\Entity\Hive;
+            $hive = new \Apiary\Entity\Hive;
             $hive->setName($hivename);
             $this->getEntityManager()->persist($hive);
             $this->getEntityManager()->flush();
@@ -62,7 +62,7 @@ class ReadFile
         $apiary = $this->getApiary($apiaryname);
         if(!$apiary)
         {
-            $apiary = new \Application\Entity\Apiary;
+            $apiary = new \Apiary\Entity\Apiary;
             $apiary->setName($apiaryname);
             $this->getEntityManager()->persist($apiary);
             $this->getEntityManager()->flush();
@@ -73,11 +73,11 @@ class ReadFile
     public function getSensor($sensorname)
     {
         $sensorRepository = $this->getEntityManager()
-                                ->getRepository('Application\Entity\Sensor');
+                                ->getRepository('Apiary\Entity\Sensor');
         $sensor = $sensorRepository->findOneByName($sensorname);
         if(!$sensor)
         {
-            $sensor = new \Application\Entity\Sensor;
+            $sensor = new \Apiary\Entity\Sensor;
             $sensor->setName($sensorname);
             $this->getEntityManager()->persist($sensor);
             $this->getEntityManager()->flush();
@@ -88,6 +88,11 @@ class ReadFile
     public function getTopBarTemperatureSensor()
     {
         return $this->getSensor('topbartemperature');
+    }
+
+    public function getEntryTemperatureSensor()
+    {
+        return $this->getSensor('entrytemperature');
     }
 
     public function getVoltageInByteSensor()
@@ -103,7 +108,20 @@ class ReadFile
     public function addTopBarTemperature($hive, $temperature, $recordTime)
     {
         $sensor = $this->getTopBarTemperatureSensor();
-        $value = new \Application\Entity\SensorValue;
+        $value = new \Apiary\Entity\SensorValue;
+        $value->setHive($hive);
+        $value->setSensor($sensor);
+        $value->setValue($temperature);
+        $value->setRecordedAt($recordTime);
+        $this->getEntityManager()->persist($value);
+        $this->getEntityManager()->flush();
+        return $value;
+    }
+
+    public function addEntryTemperature($hive, $temperature, $recordTime)
+    {
+        $sensor = $this->getEntryTemperatureSensor();
+        $value = new \Apiary\Entity\SensorValue;
         $value->setHive($hive);
         $value->setSensor($sensor);
         $value->setValue($temperature);
@@ -116,7 +134,7 @@ class ReadFile
     public function addVoltageInByte($hive, $voltage, $recordTime)
     {
         $sensor = $this->getVoltageInByteSensor();
-        $value = new \Application\Entity\SensorValue;
+        $value = new \Apiary\Entity\SensorValue;
         $value->setHive($hive);
         $value->setSensor($sensor);
         $value->setValue($voltage);
@@ -130,7 +148,7 @@ class ReadFile
     public function addHumidity($hive, $humidity, $recordTime)
     {
         $sensor = $this->getHumiditySensor();
-        $value = new \Application\Entity\SensorValue;
+        $value = new \Apiary\Entity\SensorValue;
         $value->setHive($hive);
         $value->setSensor($sensor);
         $value->setValue($humidity);
@@ -145,6 +163,68 @@ class ReadFile
         $format = 'Y-m-d H:i:s';
         $datetime = \DateTime::createFromFormat($format, "$date $hour");
         return $datetime;
+    }
+
+    public function getReferenceDate()
+    {
+        $format = 'Y-m-d H:i:s';
+        $datetime = \DateTime::createFromFormat($format, "2016-05-30 14:30:00");
+        return $datetime;
+    }
+
+    public function parseCsv($filename, $directory = null)
+    {
+        $apiaryname = 'LyceeDesAndaines';
+        $this->addApiary($apiaryname);
+        $apiary = $this->getApiary('Jody');
+
+
+
+        $aDatas = array();
+        $iNb = 0;
+        $file = fopen($filename, 'r');
+
+        if($file)
+        {
+            while(($row = fgetcsv($file,0,';')) !== false)
+            {
+                $id_hive    = str_replace('id=','',$row[0]);
+                $id_hive    = 'Danvou';
+                $datetime   = str_replace('time=','',$row[1]);
+                $t1         = str_replace('t1=','',$row[2]);;
+                $t2         = str_replace('t2=','',$row[3]);
+                $millis     = str_replace('milli=','',$row[7]);
+                $seconds    = (int)($millis / 1000);
+                $refdate = $this->getReferenceDate();
+                $recordTime = $refdate->modify('+' . $seconds . ' seconds');
+
+                echo "$id_hive $datetime $t1 $t2 $millis $seconds " . $recordTime->format('Y-m-d H:i:s') . "\n";//die();
+                //var_dump($yesterday->format('Y-m-d H:i:s'), $recordTime->format('Y-m-d H:i:s'));die();
+                if(($iNb % 10) == 0)
+                {
+                    $this->getEntityManager()->flush();
+                    $this->getEntityManager()->clear();
+                }
+
+                if(in_array($id_hive, $this->_aAllowedIds))
+                {
+                    $hive = $this->addHive($id_hive);
+
+                    $this->addTopBarTemperature($hive, $t1, $recordTime);
+                    $this->addEntryTemperature($hive, $t2, $recordTime);
+
+                    echo $recordTime->format('Y-m-d H:i:s') . " $id_hive $t1 $t2\n";
+                }
+                else
+                {
+                    echo "SKIPPING " . $recordTime->format('Y-m-d H:i:s') . "  $millis $id_hive\n";
+                }
+
+                $iNb++;
+            }
+        }
+
+        return $aDatas;
     }
 
     public function parseLog($filename, $directory = null)

@@ -52,7 +52,7 @@ return array(
                     ),
                 ),
             ),
-            'graphvoltage' => array(
+            /*'graphvoltage' => array(
                 'type'    => 'Literal',
                 'options' => array(
                     'route'    => '/voltage',
@@ -85,7 +85,7 @@ return array(
                         'action'        => 'getHiveSensors',
                     ),
                 ),
-            ),
+            ),*/
         ),
     ),
     'service_manager' => array(
@@ -95,8 +95,6 @@ return array(
         ),
         'factories' => array(
             'translator'    => 'Zend\Mvc\Service\TranslatorServiceFactory',
-            'MyApplication' => 'Application\Factory\ApplicationFactory',
-            'ReadFile'      => 'Application\Factory\ReadFileFactory',
         ),
     ),
     'translator' => array(

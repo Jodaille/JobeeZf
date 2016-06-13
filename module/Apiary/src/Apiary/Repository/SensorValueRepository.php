@@ -1,5 +1,5 @@
 <?php
-namespace Application\Repository;
+namespace Apiary\Repository;
 
 use Doctrine\ORM\EntityRepository;
 
@@ -8,19 +8,19 @@ class SensorValueRepository extends EntityRepository
 
     public function getHiveVoltage($hivename)
     {
-        $offset = 20000;
-        $limit = 20000;
+        $offset = 0;
+        $limit = 200;
         $hiveRepository = $this->getEntityManager()
-                                ->getRepository('Application\Entity\Hive');
+                                ->getRepository('Apiary\Entity\Hive');
         $sensorRepository = $this->getEntityManager()
-                                ->getRepository('Application\Entity\Sensor');
+                                ->getRepository('Apiary\Entity\Sensor');
         $hive = $hiveRepository->findOneByName($hivename);
         $sensor = $sensorRepository->findOneByName('byteVoltage');
 
         // byteVoltage
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select(array('sv'))
-        ->from('Application\Entity\SensorValue', 'sv')
+        ->from('Apiary\Entity\SensorValue', 'sv')
         ->Where('sv.hive = :hive')
         ->andWhere('sv.sensor = :sensor')
         ->setParameters(array(':hive' => $hive, ':sensor' => $sensor));
@@ -37,23 +37,23 @@ class SensorValueRepository extends EntityRepository
 
     public function getHiveSensorValues($hivename)
     {
-        $offset = 10000;
-        $limit = 2000;
+        $offset = 140;
+        $limit = 200;
         $hiveRepository = $this->getEntityManager()
-                                ->getRepository('Application\Entity\Hive');
+                                ->getRepository('Apiary\Entity\Hive');
         $sensorRepository = $this->getEntityManager()
-                                ->getRepository('Application\Entity\Sensor');
+                                ->getRepository('Apiary\Entity\Sensor');
         $hive = $hiveRepository->findOneByName($hivename);
         $sensor = $sensorRepository->findOneByName('byteVoltage');
 
         // byteVoltage
         $qb = $this->getEntityManager()->createQueryBuilder();
         $qb->select(array('sv'))
-        ->from('Application\Entity\SensorValue', 'sv')
+        ->from('Apiary\Entity\SensorValue', 'sv')
         ->Where('sv.hive = :hive')
         ->setParameters(array(':hive' => $hive));
 
-        //$qb->setFirstResult( $offset );
+        $qb->setFirstResult( $offset );
         //$qb->setMaxResults( $limit );
 
         $query = $qb->getQuery();
